@@ -1,5 +1,42 @@
-*.pptx
-*.pptx
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+PycharmProjects/**/venv/
+
+# IDEs and editor files
+.idea/
+*.iml
+.vscode/
+
+# Build and packaging outputs
+build/
+dist/
+site/
+*.egg-info/
+
+# Generated project artifacts
 *.pdf
 *.docx
-PycharmProjects/
+*.pptx
+*.xlsx
+
+# PyCharm project metadata and cache files
+PycharmProjects/**/.DS_Store
+PycharmProjects/**/.idea/
+PycharmProjects/**/__pycache__/
