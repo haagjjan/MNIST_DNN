@@ -17,6 +17,7 @@ venv/
 .venv/
 env/
 ENV/
+PycharmProjects/
 PycharmProjects/**/venv/
 
 # IDEs and editor files
@@ -35,6 +36,12 @@ site/
 *.docx
 *.pptx
 *.xlsx
+
+# Generated model outputs
+models/*
+!models/.gitkeep
+*.h5
+*.keras
 
 # PyCharm project metadata and cache files
 PycharmProjects/**/.DS_Store
