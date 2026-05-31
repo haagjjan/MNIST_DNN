@@ -46,10 +46,18 @@ The original root script trains for 1 epoch. The written report discusses result
 
 ## Setup
 
-Use Python 3.11 if possible. Create and activate a virtual environment, then install the dependencies:
+Use Python 3.11 if possible. TensorFlow can be picky about Python versions, and this project was originally built around Python 3.11.
+
+On macOS with Homebrew, install Python 3.11 if it is missing:
 
 ```bash
-python -m venv .venv
+brew install python@3.11
+```
+
+Create and activate a virtual environment, then install the dependencies:
+
+```bash
+python3.11 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
@@ -58,6 +66,15 @@ On Windows, activation is usually:
 
 ```bash
 .venv\Scripts\activate
+```
+
+If `python3.11 -m venv .venv` fails on macOS, try Apple's system Python:
+
+```bash
+/usr/bin/python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
 ## Usage
