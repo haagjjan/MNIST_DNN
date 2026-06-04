@@ -41,12 +41,12 @@ testing, safer model storage, model selection, and model comparison.
 
 ## Planned Structure
 
-- `src/preprocessing.py`: shared MNIST-style image preparation and local sample
+- `mnist_dnn/preprocessing.py`: shared MNIST-style image preparation and local sample
   saving.
-- `src/model_registry.py`: safe model run storage, metadata, loading, listing,
+- `mnist_dnn/model_registry.py`: safe model run storage, metadata, loading, listing,
   and comparison helpers.
 - `scripts/train_dense_mnist.py`: existing CLI entry point, extended through
-  `src.mnist_dnn`.
+  `mnist_dnn.core`.
 - `scripts/draw_digit_tester.py`: local Tkinter drawing and prediction app.
 - `models/runs/<run_id>/model.keras`: saved Keras model.
 - `models/runs/<run_id>/metadata.json`: metadata for the saved model.

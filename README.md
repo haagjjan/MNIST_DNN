@@ -12,14 +12,14 @@ The unresolved limitation is generalization: the model performs well on MNIST-st
 
 ## Repository Structure
 
-- `src/` - cleaned reusable Python functions for the dense MNIST model.
+- `mnist_dnn/` - cleaned reusable Python package for the dense MNIST model.
 - `scripts/` - command-line entry points.
 - `models/` - local output folder for trained models.
 - `data/examples/` - small sample digit images for prediction tests.
 - `docs/` - project summary and supporting documentation.
-- `archive/` - historical tracked PyCharm project files and old experiments.
-- `Projektvereinbarung/` - original project agreement and concept material.
-- `MA_WG_2024_Haag_Jan_Werk_17032005.py` - original final script kept unchanged at the repository root.
+- `archive/` - historical material, including legacy scripts, reports, presentation slides, and old workspace snapshots.
+- `archive/project-agreement/` - original project agreement and concept material.
+- `archive/legacy/MA_WG_2024_Haag_Jan_Werk_17032005.py` - original final script kept unchanged as historical material.
 - `MA_WG_2024_Haag_Jan_17032005.pdf` - final written report.
 - `MA_WG_2024_Haag_Jan_Arbeitsjournal_17032005.pdf` - work journal.
 - `MA_PPP_Jan.pptx` - presentation slides.
@@ -132,7 +132,7 @@ If the drawing window fails to open on macOS with a Tk version error, recreate t
 
 ## Original Script
 
-`MA_WG_2024_Haag_Jan_Werk_17032005.py` is preserved as the original final Maturaarbeit script. It still contains historical comments and the hardcoded local Windows-style image path used during the original work.
+`archive/legacy/MA_WG_2024_Haag_Jan_Werk_17032005.py` is preserved as the original final Maturaarbeit script. It still contains historical comments and the hardcoded local Windows-style image path used during the original work.
 
 For new runs, prefer:
 

@@ -7,7 +7,7 @@ import unittest
 import cv2
 import numpy as np
 
-from src.preprocessing import (
+from mnist_dnn.preprocessing import (
     load_local_digit_dataset,
     prepare_mnist_style_image,
     preprocess_digit_array,

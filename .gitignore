@@ -50,3 +50,6 @@ data/local_digits/
 PycharmProjects/**/.DS_Store
 PycharmProjects/**/.idea/
 PycharmProjects/**/__pycache__/
+archive/workspaces/**/.DS_Store
+archive/workspaces/**/.idea/
+archive/workspaces/**/venv/

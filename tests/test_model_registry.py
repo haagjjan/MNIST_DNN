@@ -5,7 +5,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from src.model_registry import (
+from mnist_dnn.model_registry import (
     METADATA_FILENAME,
     MODEL_FILENAME,
     get_model_info,

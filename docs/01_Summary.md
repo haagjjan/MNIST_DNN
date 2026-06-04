@@ -18,7 +18,7 @@
 
 ## 3. Preserved Original Work
 
-- The historical final script remains at the repository root: `MA_WG_2024_Haag_Jan_Werk_17032005.py`.
+- The historical final script lives in `archive/legacy/MA_WG_2024_Haag_Jan_Werk_17032005.py`.
 - The original report, work journal, presentation, and project agreement material are preserved.
 - Old tracked PyCharm project files and intermediate scripts were moved to `archive/pycharm-projects/`.
 - The original script is kept as historical material and should not be treated as the recommended modern entry point.
@@ -26,7 +26,7 @@
 
 ## 4. Cleaned Repository Structure
 
-- `src/`: cleaned reusable Python code.
+- `mnist_dnn/`: cleaned reusable Python package.
 - `scripts/`: command-line entry point.
 - `models/`: local output folder for trained models.
 - `data/examples/`: small sample digit PNGs for prediction tests.
@@ -38,7 +38,7 @@
 
 ## 5. Cleaned Runnable Code
 
-- Main reusable module: `src/mnist_dnn.py`.
+- Main reusable module: `mnist_dnn/core.py`.
 - CLI entry point: `scripts/train_dense_mnist.py`.
 - The cleaned version uses `argparse`.
 - Supported modes: `--mode train`, `--mode evaluate`, `--mode predict`.

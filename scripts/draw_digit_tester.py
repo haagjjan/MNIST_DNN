@@ -324,13 +324,13 @@ def _load_runtime_dependencies() -> None:
     from tkinter import simpledialog as simpledialog_module
     from tkinter import ttk as ttk_module
 
-    from src.mnist_dnn import load_model as load_model_function
-    from src.model_registry import (
+    from mnist_dnn.core import load_model as load_model_function
+    from mnist_dnn.model_registry import (
         get_model_info as get_model_info_function,
         list_models as list_models_function,
         load_registered_model as load_registered_model_function,
     )
-    from src.preprocessing import (
+    from mnist_dnn.preprocessing import (
         prepare_mnist_style_image as prepare_mnist_style_image_function,
         preprocess_digit_array as preprocess_digit_array_function,
         save_local_digit_sample as save_local_digit_sample_function,
