@@ -103,6 +103,33 @@ Predict all supported images in a folder:
 python scripts/train_dense_mnist.py --mode predict --model-path models/mnist_dense.keras --image-folder data/examples
 ```
 
+Train and store a model in the safe registry:
+
+```bash
+python scripts/train_dense_mnist.py --mode train --epochs 10 --save-registered --model-name baseline_dense
+```
+
+Use the latest registered model:
+
+```bash
+python scripts/train_dense_mnist.py --mode evaluate --model-id latest
+python scripts/train_dense_mnist.py --mode predict --model-id latest --image-path data/examples/Digit1.png
+```
+
+Compare registered models on MNIST and optional local hand-drawn samples:
+
+```bash
+python scripts/train_dense_mnist.py --mode compare --local-dataset data/local_digits
+```
+
+Open the local drawing tester:
+
+```bash
+python scripts/draw_digit_tester.py --model-id latest
+```
+
+If the drawing window fails to open on macOS with a Tk version error, recreate the virtual environment with the recommended Python 3.11 interpreter from the setup section.
+
 ## Original Script
 
 `MA_WG_2024_Haag_Jan_Werk_17032005.py` is preserved as the original final Maturaarbeit script. It still contains historical comments and the hardcoded local Windows-style image path used during the original work.
@@ -128,3 +155,5 @@ The written report describes MNIST test accuracy of about 97.5% after 10 epochs 
 ## Documentation
 
 See `docs/01_Summary.md` for a compact project summary with background, implementation notes, known issues, and sensible next steps.
+
+See `docs/02_Interactive_Testing_Model_Registry.md` for the implementation plan for direct hand-drawn testing, safe model storage, model selection, and model comparison.
