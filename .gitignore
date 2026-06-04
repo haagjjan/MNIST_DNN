@@ -43,6 +43,9 @@ models/*
 *.h5
 *.keras
 
+# Personal local digit drawings
+data/local_digits/
+
 # PyCharm project metadata and cache files
 PycharmProjects/**/.DS_Store
 PycharmProjects/**/.idea/
