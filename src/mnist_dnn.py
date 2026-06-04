@@ -11,20 +11,32 @@ import argparse
 from pathlib import Path
 from typing import Iterable
 
-import cv2
 import numpy as np
 import tensorflow as tf
 
+from src.model_registry import (
+    compare_models,
+    get_model_info,
+    load_registered_model,
+    save_registered_model,
+)
+from src.preprocessing import (
+    IMAGE_SIZE,
+    LOCAL_DIGITS_DIR,
+    load_local_digit_dataset,
+    normalize_for_model,
+    preprocess_image_file,
+)
 
-IMAGE_SIZE = (28, 28)
+
 DEFAULT_MODEL_PATH = Path("models/mnist_dense.keras")
 
 
 def load_data() -> tuple[tuple[np.ndarray, np.ndarray], tuple[np.ndarray, np.ndarray]]:
     """Load and normalize the MNIST train/test split."""
     (x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
-    x_train = tf.keras.utils.normalize(x_train, axis=1).astype("float32")
-    x_test = tf.keras.utils.normalize(x_test, axis=1).astype("float32")
+    x_train = normalize_for_model(x_train).astype("float32")
+    x_test = normalize_for_model(x_test).astype("float32")
     return (x_train, y_train), (x_test, y_test)
 
 
@@ -63,6 +75,18 @@ def evaluate_model(model: tf.keras.Model) -> tuple[float, float]:
     return float(loss), float(accuracy)
 
 
+def evaluate_local_dataset(
+    model: tf.keras.Model,
+    dataset_path: str | Path,
+) -> tuple[float | None, float | None, int]:
+    """Evaluate the model on labeled local samples, if any exist."""
+    x_local, y_local = load_local_digit_dataset(dataset_path)
+    if len(y_local) == 0:
+        return None, None, 0
+    loss, accuracy = model.evaluate(x_local, y_local, verbose=0)
+    return float(loss), float(accuracy), int(len(y_local))
+
+
 def save_model(model: tf.keras.Model, model_path: str | Path) -> None:
     """Save a trained model in Keras format."""
     path = Path(model_path)
@@ -79,25 +103,8 @@ def load_model(model_path: str | Path) -> tf.keras.Model:
 
 
 def preprocess_image(image_path: str | Path) -> np.ndarray:
-    """Read a digit image and convert it to model input shape `(1, 28, 28)`.
-
-    MNIST uses bright digits on a dark background. If the input image appears to
-    use a light background, the image is inverted before normalization.
-    """
-    path = Path(image_path)
-    image = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
-    if image is None:
-        raise FileNotFoundError(f"Image file could not be read: {path}")
-
-    if image.mean() > 127:
-        image = 255 - image
-
-    if image.shape != IMAGE_SIZE:
-        image = cv2.resize(image, IMAGE_SIZE, interpolation=cv2.INTER_AREA)
-
-    image = image.astype("float32")
-    image = tf.keras.utils.normalize(image, axis=1)
-    return np.expand_dims(image, axis=0)
+    """Read a digit image and convert it to model input shape `(1, 28, 28)`."""
+    return preprocess_image_file(image_path)
 
 
 def predict_image(model: tf.keras.Model, image_path: str | Path) -> tuple[int, float, np.ndarray]:
@@ -126,7 +133,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--mode",
-        choices=("train", "evaluate", "predict"),
+        choices=("train", "evaluate", "predict", "compare"),
         required=True,
         help="Action to run.",
     )
@@ -137,9 +144,25 @@ def parse_args() -> argparse.Namespace:
         help="Number of training epochs for --mode train.",
     )
     parser.add_argument(
+        "--learning-rate",
+        type=float,
+        default=0.002,
+        help="Learning rate for --mode train.",
+    )
+    parser.add_argument(
         "--model-path",
         default=str(DEFAULT_MODEL_PATH),
         help="Path to a saved Keras model for evaluate/predict.",
+    )
+    parser.add_argument(
+        "--model-id",
+        action="append",
+        help="Registered model ID, or latest. May be repeated for --mode compare.",
+    )
+    parser.add_argument(
+        "--model-name",
+        default="mnist_dense_ann",
+        help="Human-readable model name stored in registry metadata.",
     )
     parser.add_argument(
         "--image-path",
@@ -153,25 +176,108 @@ def parse_args() -> argparse.Namespace:
         "--save-model",
         help="Where to save the trained model for --mode train.",
     )
+    parser.add_argument(
+        "--save-registered",
+        action="store_true",
+        help="Save the trained model to the safe model registry.",
+    )
+    parser.add_argument(
+        "--local-dataset",
+        default=str(LOCAL_DIGITS_DIR),
+        help="Local labeled digit dataset for registered training metadata and compare mode.",
+    )
     return parser.parse_args()
+
+
+def _load_selected_model(args: argparse.Namespace) -> tf.keras.Model:
+    if args.model_id:
+        if len(args.model_id) != 1:
+            raise SystemExit("--mode evaluate and --mode predict accept only one --model-id")
+        model_id = args.model_id[0]
+        try:
+            model_info = get_model_info(model_id)
+            model = load_registered_model(model_id)
+        except FileNotFoundError as error:
+            raise SystemExit(str(error)) from error
+        print(f"Loaded registered model: {model_info.run_id}")
+        return model
+
+    return load_model(args.model_path)
+
+
+def _format_metric(value: float | None) -> str:
+    if value is None:
+        return "-"
+    return f"{value:.4f}"
+
+
+def _print_comparison(results: list[dict[str, object]]) -> None:
+    header = (
+        f"{'run_id':<34} {'model':<18} {'mnist_acc':>10} "
+        f"{'mnist_loss':>10} {'local_acc':>10} {'local_n':>7}"
+    )
+    print(header)
+    print("-" * len(header))
+    for row in results:
+        print(
+            f"{str(row['run_id']):<34} "
+            f"{str(row['model_name'])[:18]:<18} "
+            f"{_format_metric(row['mnist_accuracy']) :>10} "
+            f"{_format_metric(row['mnist_loss']) :>10} "
+            f"{_format_metric(row['local_accuracy']) :>10} "
+            f"{str(row['local_sample_count']):>7}"
+        )
 
 
 def main() -> None:
     args = parse_args()
 
     if args.mode == "train":
-        model = build_model()
+        model = build_model(learning_rate=args.learning_rate)
         train_model(model, epochs=args.epochs)
         loss, accuracy = evaluate_model(model)
         print(f"MNIST test loss: {loss:.4f}")
         print(f"MNIST test accuracy: {accuracy:.4f}")
 
+        local_loss, local_accuracy, local_count = evaluate_local_dataset(model, args.local_dataset)
+        if local_count:
+            print(f"Local test loss: {local_loss:.4f}")
+            print(f"Local test accuracy: {local_accuracy:.4f} ({local_count} samples)")
+
         if args.save_model:
             save_model(model, args.save_model)
             print(f"Saved model to: {args.save_model}")
+
+        if args.save_registered:
+            run_id = save_registered_model(
+                model,
+                {
+                    "model_name": args.model_name,
+                    "epochs": args.epochs,
+                    "learning_rate": args.learning_rate,
+                    "mnist_loss": loss,
+                    "mnist_accuracy": accuracy,
+                    "local_loss": local_loss,
+                    "local_accuracy": local_accuracy,
+                    "local_sample_count": local_count,
+                },
+            )
+            print(f"Registered model as: {run_id}")
         return
 
-    model = load_model(args.model_path)
+    if args.mode == "compare":
+        try:
+            results = compare_models(
+                model_ids=args.model_id,
+                include_mnist=True,
+                local_dataset=args.local_dataset,
+            )
+        except FileNotFoundError as error:
+            raise SystemExit(str(error)) from error
+        _print_comparison(results)
+        return
+
+    model = _load_selected_model(args)
 
     if args.mode == "evaluate":
         loss, accuracy = evaluate_model(model)
